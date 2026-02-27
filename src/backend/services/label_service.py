@@ -93,6 +93,10 @@ class LabelService:
 
     def _ensure_features_exist(self) -> None:
         """Add reward and is_done features to info.json if missing."""
+        rule = self._session.get_reward_rule()
+        reward_col = rule.reward_column_name
+        is_done_col = rule.is_done_column_name
+
         info_path = self._ds.root / "meta" / "info.json"
         with open(info_path) as f:
             info = json.load(f)
@@ -100,11 +104,11 @@ class LabelService:
         features = info["features"]
         changed = False
 
-        if "reward" not in features:
-            features["reward"] = {"dtype": "float32", "shape": [1], "names": None}
+        if reward_col not in features:
+            features[reward_col] = {"dtype": "float32", "shape": [1], "names": None}
             changed = True
-        if "is_done" not in features:
-            features["is_done"] = {"dtype": "bool", "shape": [1], "names": None}
+        if is_done_col not in features:
+            features[is_done_col] = {"dtype": "bool", "shape": [1], "names": None}
             changed = True
 
         if changed:
@@ -120,6 +124,9 @@ class LabelService:
         if reward_rule is None:
             reward_rule = self._session.get_reward_rule()
 
+        reward_col = reward_rule.reward_column_name
+        is_done_col = reward_rule.is_done_column_name
+
         data_path = self._ds.root / self._ds.meta.get_data_file_path(ep_index)
         lock_path = str(data_path) + ".lock"
 
@@ -128,16 +135,16 @@ class LabelService:
             df = table.to_pandas()
 
             # Add columns if they don't exist
-            if "reward" not in df.columns:
-                df["reward"] = 0.0
-            if "is_done" not in df.columns:
-                df["is_done"] = False
+            if reward_col not in df.columns:
+                df[reward_col] = 0.0
+            if is_done_col not in df.columns:
+                df[is_done_col] = False
 
             ep_mask = df["episode_index"] == ep_index
 
             # Reset this episode's values
-            df.loc[ep_mask, "reward"] = 0.0
-            df.loc[ep_mask, "is_done"] = False
+            df.loc[ep_mask, reward_col] = 0.0
+            df.loc[ep_mask, is_done_col] = False
 
             if label is not None:
                 ep_indices = df.index[ep_mask]
@@ -146,7 +153,7 @@ class LabelService:
 
                 # Step reward on all non-terminal frames
                 if len(non_terminal) > 0:
-                    df.loc[non_terminal, "reward"] = float(reward_rule.step_reward)
+                    df.loc[non_terminal, reward_col] = float(reward_rule.step_reward)
 
                 # Terminal reward based on label
                 terminal_reward = (
@@ -154,8 +161,8 @@ class LabelService:
                     if label == "success"
                     else reward_rule.failure_terminal_reward
                 )
-                df.at[last_frame_idx, "reward"] = float(terminal_reward)
-                df.at[last_frame_idx, "is_done"] = True
+                df.at[last_frame_idx, reward_col] = float(terminal_reward)
+                df.at[last_frame_idx, is_done_col] = True
 
             new_table = pa.Table.from_pandas(df, preserve_index=False)
             pq.write_table(new_table, data_path, compression="snappy")

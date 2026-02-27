@@ -217,18 +217,24 @@ export function LabelPanel({
   const handlePresetSelect = useCallback(
     (preset: RewardRule) => {
       setShowPresetMenu(false);
+      // Merge preset reward values with current column names
+      const merged: RewardRule = {
+        ...preset,
+        reward_column_name: rewardRule.reward_column_name,
+        is_done_column_name: rewardRule.is_done_column_name,
+      };
       if (labeledCount > 0) {
         confirm({
           title: "Re-apply reward function",
           message: `Re-apply reward function to ${labeledCount} labeled episode${labeledCount === 1 ? "" : "s"}?\n\nThis will rewrite reward values in the parquet files.`,
           confirmLabel: "Re-apply",
-          onConfirm: () => onRewardRuleChange(preset, true),
+          onConfirm: () => onRewardRuleChange(merged, true),
         });
       } else {
-        onRewardRuleChange(preset, false);
+        onRewardRuleChange(merged, false);
       }
     },
-    [labeledCount, onRewardRuleChange, confirm]
+    [labeledCount, onRewardRuleChange, confirm, rewardRule.reward_column_name, rewardRule.is_done_column_name]
   );
 
   const handleCustomApply = useCallback(() => {
@@ -404,7 +410,7 @@ export function LabelPanel({
             {showCustomEditor && (
               <div
                 ref={editorRef}
-                className="absolute bottom-full mb-1 right-0 bg-[#161821] border border-[#2a2d38] rounded-lg p-3 shadow-xl z-50 min-w-[240px]"
+                className="absolute bottom-full mb-1 right-0 bg-[#161821] border border-[#2a2d38] rounded-lg p-3 shadow-xl z-50 min-w-[320px]"
               >
                 <div className="text-[10px] text-[#929AAB] mb-2 font-medium">Custom Reward Rule</div>
                 {([
@@ -428,6 +434,29 @@ export function LabelPanel({
                     />
                   </label>
                 ))}
+                {/* Column name section */}
+                <div className="border-t border-[#2a2d38] mt-2.5 pt-2.5">
+                  <div className="text-[10px] text-[#929AAB] mb-2 font-medium">Output Column Names</div>
+                  {([
+                    { key: "reward_column_name" as const, label: "Reward column" },
+                    { key: "is_done_column_name" as const, label: "Done column" },
+                  ]).map(({ key, label }) => (
+                    <label key={key} className="flex items-center justify-between gap-3 mb-1.5">
+                      <span className="text-[10px] text-[#929AAB]">{label}</span>
+                      <input
+                        type="text"
+                        value={customValues[key]}
+                        onChange={(e) =>
+                          setCustomValues((v) => ({
+                            ...v,
+                            [key]: e.target.value,
+                          }))
+                        }
+                        className="w-32 bg-[#0B0B0D] border border-[#2a2d38] rounded px-1.5 py-0.5 text-[11px] text-[#D3D5FD] focus:outline-none focus:border-[#D3D5FD]/50 font-mono"
+                      />
+                    </label>
+                  ))}
+                </div>
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => setShowCustomEditor(false)}

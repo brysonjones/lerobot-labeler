@@ -37,6 +37,9 @@ export default function LabelerPage() {
   // Auto-advance to next episode after labeling
   const [autoAdvance, setAutoAdvance] = useState(false);
 
+  // Load-new-dataset modal
+  const [showLoadModal, setShowLoadModal] = useState(false);
+
   // Playback state
   const [frameIndex, setFrameIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -309,8 +312,20 @@ export default function LabelerPage() {
       {/* Sidebar */}
       <aside className="w-64 bg-[#0B0B0D] border-r border-[#1e2028] flex flex-col">
         <div className="p-3 border-b border-[#1e2028]">
-          <div className="text-sm font-medium text-[#D3D5FD] truncate">
-            {dataset.info.repo_id}
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-sm font-medium text-[#D3D5FD] truncate">
+              {dataset.info.repo_id}
+            </div>
+            <button
+              onClick={() => setShowLoadModal(true)}
+              className="shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] text-[#D3D5FD]/60 hover:text-[#D3D5FD] hover:bg-[#161821] transition-colors border border-[#2a2d38]"
+            >
+              <svg className="w-3 h-3" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h5l2 2h5a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" />
+                <path d="M10 9v5M7.5 11.5h5" />
+              </svg>
+              Load
+            </button>
           </div>
           <div className="text-xs text-[#929AAB] mt-0.5">
             {dataset.episodes.length} episodes &middot;{" "}
@@ -508,6 +523,47 @@ export default function LabelerPage() {
           />
         </div>
       </main>
+
+      {/* Load new dataset modal */}
+      {showLoadModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowLoadModal(false);
+          }}
+        >
+          <div className="max-w-lg w-full mx-6">
+            <div className="bg-[#0B0B0D]/90 backdrop-blur-xl border border-[#2a2d38] rounded-2xl p-8 shadow-2xl shadow-black/40">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h2 className="text-sm font-medium text-[#D3D5FD] mb-1">
+                    Dataset Path
+                  </h2>
+                  <p className="text-xs text-[#929AAB]">
+                    Select a local directory containing a LeRobot v3.0 dataset
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowLoadModal(false)}
+                  className="shrink-0 p-1 rounded-md text-[#929AAB] hover:text-[#D3D5FD] hover:bg-[#161821] transition-colors"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                    <path d="M5 5l10 10M15 5L5 15" />
+                  </svg>
+                </button>
+              </div>
+              <DatasetSelector
+                onLoad={(path, saveTo) => {
+                  setShowLoadModal(false);
+                  dataset.loadDataset(path, saveTo);
+                }}
+                loading={dataset.loading}
+                error={dataset.error}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
