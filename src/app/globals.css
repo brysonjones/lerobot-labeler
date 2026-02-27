@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* Scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2d38 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2a2d38;
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #474A56;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+@font-face {
+  font-family: 'Fantasque Sans Mono';
+  src: url('/fantasque-sans-mono/Webfonts/FantasqueSansMono-Regular.woff2') format('woff2'),
+       url('/fantasque-sans-mono/Webfonts/FantasqueSansMono-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fantasque Sans Mono';
+  src: url('/fantasque-sans-mono/Webfonts/FantasqueSansMono-Italic.woff2') format('woff2'),
+       url('/fantasque-sans-mono/Webfonts/FantasqueSansMono-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fantasque Sans Mono';
+  src: url('/fantasque-sans-mono/Webfonts/FantasqueSansMono-Bold.woff2') format('woff2'),
+       url('/fantasque-sans-mono/Webfonts/FantasqueSansMono-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fantasque Sans Mono';
+  src: url('/fantasque-sans-mono/Webfonts/FantasqueSansMono-BoldItalic.woff2') format('woff2'),
+       url('/fantasque-sans-mono/Webfonts/FantasqueSansMono-BoldItalic.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
