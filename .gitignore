@@ -1,0 +1,45 @@
+# Node
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Electron
+dist-electron/
+
+# TypeScript
+*.tsbuildinfo
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+
+# Shell / dotfiles
+.bash_profile
+.bashrc
+.zshrc
+.zprofile
+.profile
+.gitconfig
+.ripgreprc
+
+# Tool config
+.claude/
+.mcp.json
+
+# Bare git internals (bind-mounted as empty files)
+HEAD
+refs
+objects
+hooks
+config
+.gitmodules
+
+# OS
+.DS_Store
