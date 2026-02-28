@@ -18,7 +18,7 @@ export default function HomePage() {
       sessionStorage.setItem("dataset_path", info.root_path);
       sessionStorage.removeItem("dataset_save_to");
       router.push("/labeler");
-      // Keep loading=true — the component unmounts on navigation.
+      // Keep loading=true since the component unmounts on navigation.
       // Resetting here would briefly flash the form before the page transition.
     } catch (err) {
       setLoading(false);
@@ -27,7 +27,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen flex items-start justify-center pt-[15vh] relative overflow-hidden">
       {/* Background gradient accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[40%] -left-[20%] w-[60%] h-[60%] rounded-full bg-[#D3D5FD]/[0.05] blur-[120px]" />

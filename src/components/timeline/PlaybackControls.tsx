@@ -73,7 +73,7 @@ export function PlaybackControls({
 }: PlaybackControlsProps) {
   return (
     <div className="flex items-center gap-3">
-      {/* Left spacer — matches Timeline's w-16 timestamp label */}
+      {/* Left spacer (matches Timeline's w-16 timestamp label) */}
       <div className="w-16" />
 
       {/* Center: transport + speed controls within the timeline track area */}
@@ -145,7 +145,7 @@ export function PlaybackControls({
         </div>
       </div>
 
-      {/* Right spacers — match Timeline's w-16 time label + frame counter */}
+      {/* Right spacers (match Timeline's w-16 time label + frame counter) */}
       <span className="w-16" />
       <span className="text-xs font-mono invisible">0/0</span>
     </div>

@@ -25,7 +25,7 @@ class DatasetService:
         If *save_to* is provided it is treated as a path relative to the
         dataset's parent directory.  The dataset is copied there first
         (video files are symlinked to save space) and all subsequent
-        operations — including label writes — target the copy.
+        operations (including label writes) target the copy.
         """
         source = Path(dataset_path)
         if not (source / "meta" / "info.json").exists():
@@ -203,7 +203,7 @@ class DatasetService:
             if item.is_dir():
                 target.mkdir(parents=True, exist_ok=True)
             elif item.suffix == ".mp4":
-                # Symlink video files — they are large and read-only
+                # Symlink video files since they are large and read-only
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.symlink_to(item.resolve())
             else:

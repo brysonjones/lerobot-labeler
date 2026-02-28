@@ -170,7 +170,7 @@ class LabelService:
     def _read_label_from_parquet(self, ep_index: int) -> str | None:
         """Read label status from parquet data for a single episode.
 
-        Legacy fallback — used only for datasets without session-stored labels.
+        Legacy fallback, used only for datasets without session-stored labels.
         """
         data_path = self._ds.root / self._ds.meta.get_data_file_path(ep_index)
         try:

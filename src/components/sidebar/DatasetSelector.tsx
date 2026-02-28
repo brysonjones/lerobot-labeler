@@ -123,7 +123,7 @@ export function DatasetSelector({ onLoad, loading, error }: DatasetSelectorProps
         </span>
       </label>
 
-      {/* Output path — shown when toggled */}
+      {/* Output path (shown when toggled) */}
       {saveToNew && (
         <div>
           <div className="text-[11px] text-[#929AAB] mb-1.5">

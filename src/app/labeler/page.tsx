@@ -75,7 +75,7 @@ export default function LabelerPage() {
   // Synced zoom domain across all signal charts
   const [zoomDomain, setZoomDomain] = useState<ZoomDomain | null>(null);
 
-  // Panel ordering — videos + signals in a single draggable grid
+  // Panel ordering: videos + signals in a single draggable grid
   const [panels, setPanels] = useState<PanelItem[]>([]);
 
   const { setLabel, removeLabel, bulkSetLabel, bulkRemoveLabels, saving, error: labelError } = useLabels({
@@ -144,13 +144,13 @@ export default function LabelerPage() {
     setIsPlaying(false);
   }, [dataset.selectedEpisode]);
 
-  // Playback control — just toggle state; <video> elements handle the rest
+  // Playback control: just toggle state; <video> elements handle the rest
   const handlePlayPause = useCallback(() => {
     if (!dataset.info || dataset.selectedEpisode === null) return;
     setIsPlaying((prev) => !prev);
   }, [dataset.info, dataset.selectedEpisode]);
 
-  // Seek — the <video> elements react to frameIndex changes
+  // Seek: the <video> elements react to frameIndex changes
   const handleSeek = useCallback((frame: number) => {
     setFrameIndex(frame);
   }, []);
@@ -294,7 +294,7 @@ export default function LabelerPage() {
 
   // If no dataset loaded yet
   if (!dataset.info) {
-    // Resuming from home page — show loading screen (no selector flash)
+    // Resuming from home page, so show loading screen (no selector flash)
     if (resuming || dataset.loading) {
       return (
         <div className="flex-1 flex items-center justify-center">
@@ -309,7 +309,7 @@ export default function LabelerPage() {
       );
     }
 
-    // No stored session — show the selector for a fresh load
+    // No stored session, so show the selector for a fresh load
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="max-w-md w-full mx-4">

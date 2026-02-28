@@ -14,7 +14,7 @@ class SessionService:
     """Tracks soft-deleted episodes, reward rule, and label records
     in a JSON file alongside the dataset.
 
-    Deletions are deferred — no video re-encoding happens until export().
+    Deletions are deferred: no video re-encoding happens until export().
     """
 
     def __init__(self, dataset_service: DatasetService) -> None:
@@ -95,7 +95,7 @@ class SessionService:
         )
         return result
 
-    # ── Reward rule ──
+    # Reward rule
 
     def get_reward_rule(self) -> RewardRule:
         return self._reward_rule
@@ -104,7 +104,7 @@ class SessionService:
         self._reward_rule = rule
         self._save()
 
-    # ── Label records ──
+    # Label records
 
     def get_labels(self) -> dict[int, str]:
         return dict(self._labels)
@@ -116,7 +116,7 @@ class SessionService:
             self._labels[ep_index] = label
         self._save()
 
-    # ── Housekeeping ──
+    # Housekeeping
 
     def clear(self) -> None:
         """Reset session state and remove session file."""

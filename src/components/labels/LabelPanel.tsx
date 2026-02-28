@@ -26,7 +26,7 @@ function getPresetName(
   return null;
 }
 
-// ── Pending confirm state ──
+// Pending confirm state
 
 interface PendingConfirm {
   title: string;
@@ -35,7 +35,7 @@ interface PendingConfirm {
   onConfirm: () => void;
 }
 
-// ── LabelPanel ──
+// LabelPanel
 
 interface LabelPanelProps {
   episodeIndex: number | null;

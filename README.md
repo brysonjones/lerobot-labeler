@@ -36,26 +36,16 @@ cd lerobot-labeler
 npm install
 uv sync
 
-# Build and run the desktop app
-npm run build:electron
-```
-
-This builds the Next.js static export, compiles the Electron shell, and packages a distributable app into `dist/`. Outputs platform-specific installers
-
-### Web mode (no Electron)
-
-To run as a standalone web app without Electron:
-
-```bash
-# Build the frontend
+# Build the frontend and Electron shell
 npm run build
 
-# Start both services
-uv run python -m backend.main &    # Backend on :8976
-npx serve out -l 3000              # Serve static frontend on :3000
+# Launch the app
+npm start
 ```
 
-Then open `http://localhost:3000` in a browser.
+This starts the Python backend, serves the production frontend, and opens the Electron desktop window.
+
+> **Note:** We have not yet set up the build and packaging process for an all-in-one Electron app install yet. You need the dependencies above to build and run from source. If a standalone installer (AppImage, dmg, etc.) with a bundled Python environment would be useful to you, please file an issue and/or submit a PR.
 
 ## How It Works
 
