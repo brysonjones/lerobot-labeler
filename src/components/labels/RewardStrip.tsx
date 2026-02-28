@@ -78,7 +78,8 @@ export function RewardStrip({ label, totalFrames, currentFrame, rewardRule, fps 
               tick={{ fontSize: 10, fill: "#474A56" }}
               axisLine={false}
               tickLine={false}
-              width={32}
+              width={1}
+              mirror
             />
             <Tooltip
               contentStyle={{
