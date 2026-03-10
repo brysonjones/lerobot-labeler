@@ -1,4 +1,4 @@
-"""Tests for LabelService — labeling, reward rules, parquet verification."""
+"""Tests for LabelService --labeling, reward rules, parquet verification."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from backend.services.label_service import LabelService
 from backend.services.session_service import SessionService
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────
+# Helpers 
 
 
 def _read_episode_rewards(dataset_service, ep_index: int) -> pd.DataFrame:
@@ -23,7 +23,7 @@ def _read_episode_rewards(dataset_service, ep_index: int) -> pd.DataFrame:
     return df[df["episode_index"] == ep_index][["reward", "is_done"]].reset_index(drop=True)
 
 
-# ── Basic labeling ────────────────────────────────────────────────────────
+# Basic labeling 
 
 
 class TestBasicLabeling:
@@ -44,7 +44,7 @@ class TestBasicLabeling:
         assert label_service.get_label(0) is None
 
 
-# ── Parquet reward verification ───────────────────────────────────────────
+# Parquet reward verification 
 
 
 class TestRewardParquet:
@@ -137,7 +137,7 @@ class TestRewardParquet:
         assert (~df["is_done"]).all()
 
 
-# ── Reapply & edge cases ─────────────────────────────────────────────────
+# Reapply & edge cases 
 
 
 class TestReapplyAndEdgeCases:
@@ -214,7 +214,7 @@ class TestReapplyAndEdgeCases:
         assert df.iloc[0]["is_done"] is True or df.iloc[0]["is_done"] == True  # noqa: E712
 
 
-# ── Legacy inference ──────────────────────────────────────────────────────
+# Legacy inference 
 
 
 class TestLegacyInference:
@@ -252,7 +252,7 @@ class TestLegacyInference:
         assert label_svc.get_label(0) == "success"
 
 
-# ── Reward presets ────────────────────────────────────────────────────────
+# Reward presets 
 
 
 class TestRewardPresets:

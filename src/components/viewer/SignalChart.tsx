@@ -72,15 +72,15 @@ export function SignalChart({
   const dataMax = timestamps[timestamps.length - 1] ?? 1;
   const currentTimestamp = timestamps[currentFrameIndex] ?? 0;
 
-  // ── Brush zoom state ──
+  // Brush zoom state
   const [brushStart, setBrushStart] = useState<number | null>(null);
   const [brushEnd, setBrushEnd] = useState<number | null>(null);
   const isDragging = useRef(false);
 
-  // ── Legend toggle ──
+  // Legend toggle
   const [hiddenDims, setHiddenDims] = useState<Set<string>>(new Set());
 
-  // ── Track cursor x for wheel zoom ──
+  // Track cursor x for wheel zoom
   const cursorXRef = useRef<number | null>(null);
 
   // Brush zoom handlers
@@ -255,7 +255,7 @@ export function SignalChart({
               }}
               labelFormatter={(v: number) => `${Number(v).toFixed(2)}s`}
             />
-            {/* Legend removed — DimensionFilter renders below the chart */}
+            {/* Legend removed; DimensionFilter renders below the chart */}
             <ReferenceLine
               x={currentTimestamp}
               stroke="#D3D5FD"

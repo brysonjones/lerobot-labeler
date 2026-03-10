@@ -1,4 +1,4 @@
-"""Tests for SessionService — soft-delete, reward rule, and label persistence."""
+"""Tests for SessionService --soft-delete, reward rule, and label persistence."""
 
 from __future__ import annotations
 

@@ -167,7 +167,7 @@ def _serialize(obj: object) -> object:
 
 @pytest.fixture()
 def make_dataset(tmp_path: Path):
-    """Factory fixture — call with optional overrides to get a fixture dataset."""
+    """Factory fixture --call with optional overrides to get a fixture dataset."""
     def _factory(**kwargs) -> SimpleNamespace:
         ds_root = tmp_path / "test-dataset"
         ds_root.mkdir(exist_ok=True)

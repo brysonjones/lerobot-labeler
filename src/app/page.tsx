@@ -18,7 +18,7 @@ export default function HomePage() {
       sessionStorage.setItem("dataset_path", info.root_path);
       sessionStorage.removeItem("dataset_save_to");
       router.push("/labeler");
-      // Keep loading=true — the component unmounts on navigation.
+      // Keep loading=true since the component unmounts on navigation.
       // Resetting here would briefly flash the form before the page transition.
     } catch (err) {
       setLoading(false);
@@ -27,11 +27,22 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen flex items-start justify-center pt-[15vh] relative overflow-hidden">
       {/* Background gradient accents */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[40%] -left-[20%] w-[60%] h-[60%] rounded-full bg-[#D3D5FD]/[0.05] blur-[120px]" />
         <div className="absolute -bottom-[30%] -right-[15%] w-[50%] h-[50%] rounded-full bg-[#A8ABE0]/[0.04] blur-[100px]" />
+        {/* Side peek illustration */}
+        <img
+          src="/robot_j_tree.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute left-0 bottom-0 h-full w-auto opacity-[0.33]"
+          style={{
+            maskImage: "linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 90%)",
+            WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 90%)",
+          }}
+        />
       </div>
 
       <div className="relative z-10 max-w-lg w-full mx-6">
@@ -50,9 +61,6 @@ export default function HomePage() {
           <h1 className="text-3xl font-semibold tracking-tight text-[#D3D5FD] mb-3">
             LeRobot Labeler
           </h1>
-          <p className="text-[#929AAB] text-[15px] leading-relaxed max-w-sm mx-auto">
-            Label robot demonstration episodes with success and failure rewards for policy learning
-          </p>
         </div>
 
         {/* Card */}
@@ -69,21 +77,6 @@ export default function HomePage() {
           <DatasetSelector onLoad={handleLoad} loading={loading} error={error} />
         </div>
 
-        {/* Footer hints */}
-        <div className="mt-8 flex items-center justify-center gap-6 text-[11px] text-[#929AAB]">
-          <span className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 bg-[#161821] border border-[#2a2d38] rounded text-[10px] text-[#929AAB]">S</kbd>
-            success
-          </span>
-          <span className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 bg-[#161821] border border-[#2a2d38] rounded text-[10px] text-[#929AAB]">F</kbd>
-            failure
-          </span>
-          <span className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 bg-[#161821] border border-[#2a2d38] rounded text-[10px] text-[#929AAB]">Space</kbd>
-            play/pause
-          </span>
-        </div>
       </div>
     </div>
   );

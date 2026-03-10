@@ -72,66 +72,82 @@ export function PlaybackControls({
   onNextEpisode,
 }: PlaybackControlsProps) {
   return (
-    <div className="flex items-center justify-center gap-1">
-      <button
-        onClick={onPrevEpisode}
-        className="text-[#929AAB] hover:text-[#D3D5FD] p-1.5 rounded transition-colors hover:bg-[#1e2028]"
-        title="Previous episode ([)"
-      >
-        <SkipPrevIcon className="w-4 h-4" />
-      </button>
+    <div className="flex items-center gap-3">
+      {/* Left spacer (matches Timeline's w-16 timestamp label) */}
+      <div className="w-16" />
 
-      <button
-        onClick={onStepBack}
-        className="text-[#929AAB] hover:text-[#D3D5FD] p-1.5 rounded transition-colors hover:bg-[#1e2028]"
-        title="Step back (Left arrow)"
-      >
-        <StepBackIcon className="w-4 h-4" />
-      </button>
-
-      <button
-        onClick={onPlayPause}
-        className="bg-[#2a2d38] hover:bg-[#474A56] text-[#D3D5FD] p-2 rounded-full transition-colors mx-1"
-        title="Play/Pause (Space)"
-      >
-        {isPlaying ? (
-          <PauseIcon className="w-5 h-5" />
-        ) : (
-          <PlayIcon className="w-5 h-5" />
-        )}
-      </button>
-
-      <button
-        onClick={onStepForward}
-        className="text-[#929AAB] hover:text-[#D3D5FD] p-1.5 rounded transition-colors hover:bg-[#1e2028]"
-        title="Step forward (Right arrow)"
-      >
-        <StepForwardIcon className="w-4 h-4" />
-      </button>
-
-      <button
-        onClick={onNextEpisode}
-        className="text-[#929AAB] hover:text-[#D3D5FD] p-1.5 rounded transition-colors hover:bg-[#1e2028]"
-        title="Next episode (])"
-      >
-        <SkipNextIcon className="w-4 h-4" />
-      </button>
-
-      <div className="ml-4 flex items-center gap-1">
-        {SPEEDS.map((s) => (
+      {/* Center: transport + speed controls within the timeline track area */}
+      <div className="flex-1 relative flex items-center justify-center">
+        <div className="flex items-center gap-1">
           <button
-            key={s}
-            onClick={() => onSpeedChange(s)}
-            className={`px-1.5 py-0.5 rounded text-xs transition-colors ${
-              speed === s
-                ? "bg-[#D3D5FD] text-[#0B0B0D]"
-                : "text-[#929AAB] hover:text-[#D3D5FD]"
-            }`}
+            onClick={onPrevEpisode}
+            className="text-[#929AAB] hover:text-[#D3D5FD] p-1.5 rounded transition-colors hover:bg-[#1e2028]"
+            title="Previous episode ([)"
           >
-            {s}x
+            <SkipPrevIcon className="w-4 h-4" />
           </button>
-        ))}
+
+          <button
+            onClick={onStepBack}
+            className="text-[#929AAB] hover:text-[#D3D5FD] p-1.5 rounded transition-colors hover:bg-[#1e2028]"
+            title="Step back (Left arrow)"
+          >
+            <StepBackIcon className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={onPlayPause}
+            className="bg-[#2a2d38] hover:bg-[#474A56] text-[#D3D5FD] p-2 rounded-full transition-colors mx-1"
+            title="Play/Pause (Space)"
+          >
+            {isPlaying ? (
+              <PauseIcon className="w-5 h-5" />
+            ) : (
+              <PlayIcon className="w-5 h-5" />
+            )}
+          </button>
+
+          <button
+            onClick={onStepForward}
+            className="text-[#929AAB] hover:text-[#D3D5FD] p-1.5 rounded transition-colors hover:bg-[#1e2028]"
+            title="Step forward (Right arrow)"
+          >
+            <StepForwardIcon className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={onNextEpisode}
+            className="text-[#929AAB] hover:text-[#D3D5FD] p-1.5 rounded transition-colors hover:bg-[#1e2028]"
+            title="Next episode (])"
+          >
+            <SkipNextIcon className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Speed dropdown pinned to right edge of timeline track */}
+        <div className="absolute right-0">
+          <select
+            value={speed}
+            onChange={(e) => onSpeedChange(parseFloat(e.target.value))}
+            className="bg-[#2a2d38] text-[#929AAB] hover:text-[#D3D5FD] text-xs rounded px-2 py-1 border border-[#2a2d38] hover:border-[#474A56] transition-colors cursor-pointer appearance-none pr-5 focus:outline-none focus:border-[#D3D5FD]/40"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23929AAB' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 6px center",
+            }}
+          >
+            {SPEEDS.map((s) => (
+              <option key={s} value={s}>
+                {s}x
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+
+      {/* Right spacers (match Timeline's w-16 time label + frame counter) */}
+      <span className="w-16" />
+      <span className="text-xs font-mono invisible">0/0</span>
     </div>
   );
 }

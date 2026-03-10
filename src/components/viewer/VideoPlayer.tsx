@@ -16,7 +16,6 @@ interface VideoPlayerProps {
   onTimeUpdate?: (frameIndex: number) => void;
   /** Called when playback reaches the last frame of the episode. */
   onPlaybackEnd?: () => void;
-  label?: string;
 }
 
 export function VideoPlayer({
@@ -30,7 +29,6 @@ export function VideoPlayer({
   speed,
   onTimeUpdate,
   onPlaybackEnd,
-  label,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isPlayingRef = useRef(false);
@@ -116,19 +114,6 @@ export function VideoPlayer({
 
   return (
     <div className="relative overflow-hidden bg-[#0B0B0D]">
-      {label && (
-        <div className="absolute top-2 right-2 z-10">
-          <span
-            className={`px-2 py-0.5 rounded text-xs font-medium ${
-              label === "success"
-                ? "bg-[#7AE6A0]/80 text-[#0B0B0D]"
-                : "bg-[#E87070]/80 text-[#D3D5FD]"
-            }`}
-          >
-            {label}
-          </span>
-        </div>
-      )}
       <video
         ref={videoRef}
         src={videoUrl}

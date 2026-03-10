@@ -2,14 +2,19 @@
   "name": "lerobot-labeler",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "Bryson Jones",
+    "email": "bkjones97@gmail.com"
+  },
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "next dev",
     "dev:python": "uv run python -m backend.main",
     "dev:electron": "tsup src/electron/main.ts src/electron/preload.ts --outDir dist-electron --external electron && concurrently \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
     "dev:all": "tsup src/electron/main.ts src/electron/preload.ts --outDir dist-electron --external electron && concurrently \"uv run python -m backend.main\" \"next dev\" \"wait-on http://localhost:3000 && electron .\"",
-    "build": "next build",
-    "build:electron": "next build && tsup src/electron/main.ts src/electron/preload.ts --outDir dist-electron --external electron && electron-builder",
+    "build": "next build && tsup src/electron/main.ts src/electron/preload.ts --outDir dist-electron --external electron",
+
+    "start": "concurrently \"uv run python -m backend.main\" \"npx serve out -l 3000\" \"wait-on http://localhost:3000 && electron .\"",
     "lint": "next lint"
   },
   "dependencies": {

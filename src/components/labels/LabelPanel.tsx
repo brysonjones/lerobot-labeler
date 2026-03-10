@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import type { RewardRule } from "@/lib/types";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 const PRESET_DISPLAY_NAMES: Record<string, string> = {
   sparse_binary: "Sparse Binary",
@@ -26,74 +26,7 @@ function getPresetName(
   return null;
 }
 
-// ── Themed confirm modal ──
-
-interface ConfirmModalProps {
-  title: string;
-  message: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-
-function ConfirmModal({
-  title,
-  message,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
-  onConfirm,
-  onCancel,
-}: ConfirmModalProps) {
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCancel();
-      if (e.key === "Enter") onConfirm();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [onConfirm, onCancel]);
-
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center"
-      onClick={onCancel}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-      {/* Dialog */}
-      <div
-        className="relative bg-[#161821] border border-[#2a2d38] rounded-xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="px-5 pt-5 pb-4">
-          <h3 className="text-sm font-semibold text-[#D3D5FD] mb-2">{title}</h3>
-          <p className="text-xs text-[#929AAB] leading-relaxed whitespace-pre-line">{message}</p>
-        </div>
-        <div className="flex border-t border-[#2a2d38]">
-          <button
-            onClick={onCancel}
-            className="flex-1 px-4 py-2.5 text-xs text-[#929AAB] hover:text-[#D3D5FD] hover:bg-[#1e2028] transition-all"
-          >
-            {cancelLabel}
-          </button>
-          <div className="w-px bg-[#2a2d38]" />
-          <button
-            onClick={onConfirm}
-            autoFocus
-            className="flex-1 px-4 py-2.5 text-xs text-[#D3D5FD] font-medium hover:bg-[#D3D5FD]/10 transition-all"
-          >
-            {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-}
-
-// ── Pending confirm state ──
+// Pending confirm state
 
 interface PendingConfirm {
   title: string;
@@ -102,7 +35,7 @@ interface PendingConfirm {
   onConfirm: () => void;
 }
 
-// ── LabelPanel ──
+// LabelPanel
 
 interface LabelPanelProps {
   episodeIndex: number | null;
@@ -119,8 +52,6 @@ interface LabelPanelProps {
   rewardPresets: Record<string, RewardRule>;
   onRewardRuleChange: (rule: RewardRule, reapply: boolean) => void;
   rewardRuleSaving: boolean;
-  autoAdvance: boolean;
-  onAutoAdvanceChange: (value: boolean) => void;
 }
 
 export function LabelPanel({
@@ -138,8 +69,6 @@ export function LabelPanel({
   rewardPresets,
   onRewardRuleChange,
   rewardRuleSaving,
-  autoAdvance,
-  onAutoAdvanceChange,
 }: LabelPanelProps) {
   const [applyAll, setApplyAll] = useState(false);
   const [showPresetMenu, setShowPresetMenu] = useState(false);
@@ -217,18 +146,24 @@ export function LabelPanel({
   const handlePresetSelect = useCallback(
     (preset: RewardRule) => {
       setShowPresetMenu(false);
+      // Merge preset reward values with current column names
+      const merged: RewardRule = {
+        ...preset,
+        reward_column_name: rewardRule.reward_column_name,
+        is_done_column_name: rewardRule.is_done_column_name,
+      };
       if (labeledCount > 0) {
         confirm({
           title: "Re-apply reward function",
           message: `Re-apply reward function to ${labeledCount} labeled episode${labeledCount === 1 ? "" : "s"}?\n\nThis will rewrite reward values in the parquet files.`,
           confirmLabel: "Re-apply",
-          onConfirm: () => onRewardRuleChange(preset, true),
+          onConfirm: () => onRewardRuleChange(merged, true),
         });
       } else {
-        onRewardRuleChange(preset, false);
+        onRewardRuleChange(merged, false);
       }
     },
-    [labeledCount, onRewardRuleChange, confirm]
+    [labeledCount, onRewardRuleChange, confirm, rewardRule.reward_column_name, rewardRule.is_done_column_name]
   );
 
   const handleCustomApply = useCallback(() => {
@@ -255,7 +190,7 @@ export function LabelPanel({
 
   return (
     <>
-      <div className="flex items-center justify-center gap-4">
+      <div className="relative flex items-center justify-center gap-4">
         <div className="flex items-center gap-1.5 bg-[#161821]/60 rounded-lg px-1.5 py-1.5">
           {/* Episode context */}
           <span className="text-[13px] text-[#929AAB] px-2.5 select-none tabular-nums">
@@ -333,23 +268,6 @@ export function LabelPanel({
             </span>
           </label>
 
-          {/* Auto-advance toggle */}
-          <label className="flex items-center gap-1.5 cursor-pointer select-none group px-1.5 py-1.5">
-            <div className="relative">
-              <input
-                type="checkbox"
-                checked={autoAdvance}
-                onChange={(e) => onAutoAdvanceChange(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-7 h-[16px] bg-[#2a2d38] rounded-full peer-checked:bg-[#A8ABE0]/50 transition-colors" />
-              <div className="absolute top-[2px] left-[2px] w-[12px] h-[12px] bg-[#929AAB] rounded-full peer-checked:translate-x-[11px] peer-checked:bg-white transition-all" />
-            </div>
-            <span className="text-xs text-[#929AAB] group-hover:text-[#D3D5FD] transition-colors">
-              Auto
-            </span>
-          </label>
-
           <div className="w-px h-5 bg-[#2a2d38]" />
 
           {/* Reward rule selector */}
@@ -364,7 +282,14 @@ export function LabelPanel({
               <svg className="w-3.5 h-3.5 text-[#474A56]" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="2,12 10,12 14,4" />
               </svg>
-              <span>{rewardRuleSaving ? "Applying..." : ruleDisplayName}</span>
+              <span className="flex flex-col items-start leading-tight">
+                <span>{rewardRuleSaving ? "Applying..." : ruleDisplayName}</span>
+                {(rewardRule.reward_column_name !== "reward" || rewardRule.is_done_column_name !== "is_done") && (
+                  <span className="text-[9px] text-[#474A56] font-mono">
+                    {rewardRule.reward_column_name}, {rewardRule.is_done_column_name}
+                  </span>
+                )}
+              </span>
               <svg className="w-3 h-3 text-[#474A56]" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M1 1l4 4 4-4" />
               </svg>
@@ -404,7 +329,7 @@ export function LabelPanel({
             {showCustomEditor && (
               <div
                 ref={editorRef}
-                className="absolute bottom-full mb-1 right-0 bg-[#161821] border border-[#2a2d38] rounded-lg p-3 shadow-xl z-50 min-w-[240px]"
+                className="absolute bottom-full mb-1 right-0 bg-[#161821] border border-[#2a2d38] rounded-lg p-3 shadow-xl z-50 min-w-[320px]"
               >
                 <div className="text-[10px] text-[#929AAB] mb-2 font-medium">Custom Reward Rule</div>
                 {([
@@ -428,6 +353,29 @@ export function LabelPanel({
                     />
                   </label>
                 ))}
+                {/* Column name section */}
+                <div className="border-t border-[#2a2d38] mt-2.5 pt-2.5">
+                  <div className="text-[10px] text-[#929AAB] mb-2 font-medium">Output Column Names</div>
+                  {([
+                    { key: "reward_column_name" as const, label: "Reward column" },
+                    { key: "is_done_column_name" as const, label: "Done column" },
+                  ]).map(({ key, label }) => (
+                    <label key={key} className="flex items-center justify-between gap-3 mb-1.5">
+                      <span className="text-[10px] text-[#929AAB]">{label}</span>
+                      <input
+                        type="text"
+                        value={customValues[key]}
+                        onChange={(e) =>
+                          setCustomValues((v) => ({
+                            ...v,
+                            [key]: e.target.value,
+                          }))
+                        }
+                        className="w-32 bg-[#0B0B0D] border border-[#2a2d38] rounded px-1.5 py-0.5 text-[11px] text-[#D3D5FD] focus:outline-none focus:border-[#D3D5FD]/50 font-mono"
+                      />
+                    </label>
+                  ))}
+                </div>
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => setShowCustomEditor(false)}
@@ -447,8 +395,11 @@ export function LabelPanel({
           </div>
         </div>
 
-        {saving && <span className="text-xs text-[#929AAB]">Saving...</span>}
-        {error && <span className="text-xs text-[#E87070]/70 max-w-48 truncate">{error}</span>}
+        {(saving || error) && (
+          <span className="absolute right-0 text-xs truncate max-w-48">
+            {saving ? <span className="text-[#929AAB]">Saving...</span> : <span className="text-[#E87070]/70">{error}</span>}
+          </span>
+        )}
       </div>
 
       {/* Themed confirm modal */}
