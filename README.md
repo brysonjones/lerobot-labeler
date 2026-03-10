@@ -85,26 +85,17 @@ The labeler adds `reward` (float32) and `is_done` (bool) columns to the data par
 
 ## Contributing
 
-### Dev Setup
+If you're interested in contributing, find a bug you want to fix, or have capabilities you'd like to report as an issue, all feedback and support are welcome!
+
+### Development Setup
 
 ```bash
-cd lerobot-labeler
-
-# Install dependencies
+# install deps
 npm install
 uv sync
 
-# Run in dev mode (backend + frontend + desktop app)
+# Run in dev mode (backend + frontend + desktop app) for re-compiling while running
 npm run dev:all
-```
-
-This starts the FastAPI backend on `:8976`, Next.js on `:3000`, and opens the Electron window.
-
-Other dev modes:
-
-```bash
-npm run dev           # Frontend only (localhost:3000)
-npm run dev:python    # Backend only (localhost:8976)
 ```
 
 ### Project Structure
@@ -125,7 +116,7 @@ tests/                # pytest suite (format compat, services, API integration)
 
 ### Tests
 
-The test suite includes format sentinel tests that verify our assumptions about lerobot's API surface — if lerobot updates and changes its dataset format, these tests fail first and tell you exactly what changed.
+The test suite includes format sentinel tests that verify our assumptions about lerobot's API surface, so if lerobot updates and changes its dataset format, these tests will let us know so we can freeze the version, and patch the changes.
 
 ```bash
 uv run pytest tests/ -v
