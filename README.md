@@ -4,6 +4,10 @@ A desktop tool for labeling [LeRobot](https://github.com/huggingface/lerobot) v3
 
 Load a dataset, review episodes across multiple camera angles with synchronized signal plots, and label each episode. Rewards are written directly to parquet so the dataset is immediately ready for training.
 
+![LeRobot Labeler demo](public/lerobot_labeler.gif)
+
+**Note:** This project is not officially associated with the LeRobot project and is a separate effort.
+
 ## Features
 
 - **Multi-camera video playback**
