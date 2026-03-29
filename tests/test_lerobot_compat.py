@@ -1,4 +1,4 @@
-"""Format sentinel tests — tripwire for LeRobot API/format changes.
+"""Format sentinel tests --tripwire for LeRobot API/format changes.
 
 These tests verify our assumptions about lerobot's API surface.  When
 lerobot ships a breaking change, these are designed to fail first and
@@ -17,7 +17,7 @@ from lerobot.datasets.lerobot_dataset import LeRobotDataset, LeRobotDatasetMetad
 from lerobot.datasets.video_utils import decode_video_frames
 
 
-# ── LeRobotDatasetMetadata constructor & loading ──────────────────────────
+# LeRobotDatasetMetadata constructor & loading 
 
 
 class TestMetadataAPI:
@@ -142,7 +142,7 @@ class TestMetadataAPI:
         assert isinstance(meta.tasks, pd.DataFrame)
 
 
-# ── Parquet schema ────────────────────────────────────────────────────────
+# Parquet schema 
 
 
 class TestParquetSchema:
@@ -168,7 +168,7 @@ class TestParquetSchema:
         )
 
 
-# ── decode_video_frames ──────────────────────────────────────────────────
+# decode_video_frames 
 
 
 class TestDecodeVideoFrames:
@@ -198,7 +198,7 @@ class TestDecodeVideoFrames:
         assert result.shape[0] == 1
 
 
-# ── delete_episodes ──────────────────────────────────────────────────────
+# delete_episodes 
 
 
 class TestDeleteEpisodes:
@@ -216,7 +216,7 @@ class TestDeleteEpisodes:
         assert "episode_indices" in params
 
 
-# ── LeRobotDataset constructor ───────────────────────────────────────────
+# LeRobotDataset constructor 
 
 
 class TestLeRobotDatasetSignature:

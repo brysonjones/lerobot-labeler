@@ -1,4 +1,4 @@
-"""Tests for DatasetService — loading, episode listing, signals, timestamps."""
+"""Tests for DatasetService --loading, episode listing, signals, timestamps."""
 
 from __future__ import annotations
 
@@ -67,7 +67,7 @@ class TestTimestamps:
     def test_timestamps_cached(self, dataset_service):
         ts1 = dataset_service.get_episode_timestamps(0)
         ts2 = dataset_service.get_episode_timestamps(0)
-        assert ts1 is ts2  # same object — cache hit
+        assert ts1 is ts2  # same object --cache hit
 
 
 class TestSignals:

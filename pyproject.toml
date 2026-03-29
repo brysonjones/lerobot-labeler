@@ -1,16 +1,16 @@
 [project]
 name = "lerobot-labeler"
 version = "0.1.0"
-description = "Desktop labeling tool for LeRobot datasets"
+description = "Labeling tool for LeRobot datasets"
 requires-python = ">=3.10"
 dependencies = [
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.32.0",
+    "fastapi>=0.132.0",
+    "uvicorn[standard]>=0.40.0",
     "lerobot>=0.4.2",
     "opencv-python>=4.10.0",
     "pyarrow>=18.0.0",
     "pandas>=2.2.0",
-    "torch>=2.5.0",
+    "torch>=2.7.0",
     "filelock>=3.16.0",
 ]
 

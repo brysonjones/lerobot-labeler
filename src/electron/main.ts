@@ -52,9 +52,12 @@ async function createWindow(isDev: boolean = false) {
 
   if (isDev) {
     mainWindow.loadURL("http://localhost:3000");
-    mainWindow.webContents.openDevTools({ mode: "bottom" });
   } else {
     mainWindow.loadFile(path.join(__dirname, "../out/index.html"));
+  }
+
+  if (process.env.DEVTOOLS === "1") {
+    mainWindow.webContents.openDevTools({ mode: "bottom" });
   }
 
   // Intercept close to check for unsaved changes
@@ -82,7 +85,7 @@ async function createWindow(isDev: boolean = false) {
       });
 
       if (response === 2) {
-        // Cancel — do nothing
+        // Cancel: do nothing
         return;
       }
 
@@ -115,7 +118,7 @@ app.whenReady().then(async () => {
     await pythonManager.start();
   } catch (err) {
     console.error("Failed to start Python backend:", err);
-    // Continue anyway — user may have started it manually
+    // Continue anyway; user may have started it manually
   }
 
   await createWindow(isDev);

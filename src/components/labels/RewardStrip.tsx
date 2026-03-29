@@ -55,11 +55,11 @@ export function RewardStrip({ label, totalFrames, currentFrame, rewardRule, fps 
 
   return (
     <div className="flex items-center gap-3">
-      {/* Left spacer — matches Timeline's w-16 time label */}
+      {/* Left spacer (matches Timeline's w-16 time label) */}
       <span className="text-xs text-[#474A56] font-mono w-16 text-right">
         reward
       </span>
-      {/* Chart — fills flex-1, aligned with Timeline slider */}
+      {/* Chart: fills flex-1, aligned with Timeline slider */}
       <div className="flex-1" style={{ height: 48 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -78,7 +78,8 @@ export function RewardStrip({ label, totalFrames, currentFrame, rewardRule, fps 
               tick={{ fontSize: 10, fill: "#474A56" }}
               axisLine={false}
               tickLine={false}
-              width={32}
+              width={1}
+              mirror
             />
             <Tooltip
               contentStyle={{
@@ -110,7 +111,7 @@ export function RewardStrip({ label, totalFrames, currentFrame, rewardRule, fps 
           </LineChart>
         </ResponsiveContainer>
       </div>
-      {/* Right spacers — match Timeline's w-16 time label + frame counter */}
+      {/* Right spacers (match Timeline's w-16 time label + frame counter) */}
       <span className="text-xs font-mono w-16" />
       <span className="text-xs font-mono invisible">
         {currentFrame}/{maxFrame}

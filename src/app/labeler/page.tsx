@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useDataset } from "@/hooks/useDataset";
 import { useLabels } from "@/hooks/useLabels";
@@ -18,6 +18,7 @@ import { PanelGrid, type PanelItem } from "@/components/viewer/PanelGrid";
 import { SortablePanel } from "@/components/viewer/SortablePanel";
 import { Timeline } from "@/components/timeline/Timeline";
 import { PlaybackControls } from "@/components/timeline/PlaybackControls";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 import type { VideoMeta } from "@/lib/types";
 import { flattenFeatureNames } from "@/lib/types";
@@ -34,8 +35,31 @@ export default function LabelerPage() {
     return !!sessionStorage.getItem("dataset_path");
   });
 
-  // Auto-advance to next episode after labeling
-  const [autoAdvance, setAutoAdvance] = useState(false);
+  // Load-new-dataset modal
+  const [showLoadModal, setShowLoadModal] = useState(false);
+
+  // Trash panel
+  const [trashOpen, setTrashOpen] = useState(false);
+
+  // Export confirmation
+  const [showExportConfirm, setShowExportConfirm] = useState(false);
+
+  // Measure episode list container height for react-window
+  const [episodeListHeight, setEpisodeListHeight] = useState(500);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const episodeListRef = useCallback((node: HTMLDivElement | null) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+    if (node) {
+      const ro = new ResizeObserver(([entry]) => {
+        setEpisodeListHeight(entry.contentRect.height);
+      });
+      ro.observe(node);
+      observerRef.current = ro;
+    }
+  }, []);
 
   // Playback state
   const [frameIndex, setFrameIndex] = useState(0);
@@ -51,7 +75,7 @@ export default function LabelerPage() {
   // Synced zoom domain across all signal charts
   const [zoomDomain, setZoomDomain] = useState<ZoomDomain | null>(null);
 
-  // Panel ordering — videos + signals in a single draggable grid
+  // Panel ordering: videos + signals in a single draggable grid
   const [panels, setPanels] = useState<PanelItem[]>([]);
 
   const { setLabel, removeLabel, bulkSetLabel, bulkRemoveLabels, saving, error: labelError } = useLabels({
@@ -72,6 +96,13 @@ export default function LabelerPage() {
       dataset.resumeSession();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Close the load-dataset modal when a dataset successfully loads
+  useEffect(() => {
+    if (dataset.info && showLoadModal) {
+      setShowLoadModal(false);
+    }
+  }, [dataset.info, showLoadModal]);
 
   // Fetch video metadata when episode changes
   useEffect(() => {
@@ -113,13 +144,13 @@ export default function LabelerPage() {
     setIsPlaying(false);
   }, [dataset.selectedEpisode]);
 
-  // Playback control — just toggle state; <video> elements handle the rest
+  // Playback control: just toggle state; <video> elements handle the rest
   const handlePlayPause = useCallback(() => {
     if (!dataset.info || dataset.selectedEpisode === null) return;
     setIsPlaying((prev) => !prev);
   }, [dataset.info, dataset.selectedEpisode]);
 
-  // Seek — the <video> elements react to frameIndex changes
+  // Seek: the <video> elements react to frameIndex changes
   const handleSeek = useCallback((frame: number) => {
     setFrameIndex(frame);
   }, []);
@@ -169,17 +200,12 @@ export default function LabelerPage() {
     }
   }, [dataset]);
 
+  const deletedCount = dataset.deletedEpisodes.length;
+
   const handleExport = useCallback(() => {
-    if (dataset.deletedCount === 0) return;
-    if (
-      !window.confirm(
-        `Apply ${dataset.deletedCount} pending deletion${dataset.deletedCount === 1 ? "" : "s"}?\n\nThis will re-encode video files and cannot be undone.`
-      )
-    ) {
-      return;
-    }
-    dataset.exportDataset();
-  }, [dataset]);
+    if (deletedCount === 0) return;
+    setShowExportConfirm(true);
+  }, [deletedCount]);
 
   const handleBulkLabel = useCallback(
     (label: "success" | "failure") => {
@@ -223,20 +249,24 @@ export default function LabelerPage() {
         case "S":
           if (dataset.selectedEpisode !== null) {
             setLabel(dataset.selectedEpisode, "success");
-            if (autoAdvance) handleNextEpisode();
+            handleNextEpisode();
           }
           break;
         case "f":
         case "F":
           if (dataset.selectedEpisode !== null) {
             setLabel(dataset.selectedEpisode, "failure");
-            if (autoAdvance) handleNextEpisode();
+            handleNextEpisode();
           }
           break;
         case "[":
+        case "ArrowUp":
+          e.preventDefault();
           handlePrevEpisode();
           break;
         case "]":
+        case "ArrowDown":
+          e.preventDefault();
           handleNextEpisode();
           break;
       }
@@ -252,7 +282,6 @@ export default function LabelerPage() {
     handleNextEpisode,
     dataset.selectedEpisode,
     setLabel,
-    autoAdvance,
   ]);
 
   const currentEp = dataset.episodes.find(
@@ -265,7 +294,7 @@ export default function LabelerPage() {
 
   // If no dataset loaded yet
   if (!dataset.info) {
-    // Resuming from home page — show loading screen (no selector flash)
+    // Resuming from home page, so show loading screen (no selector flash)
     if (resuming || dataset.loading) {
       return (
         <div className="flex-1 flex items-center justify-center">
@@ -280,7 +309,7 @@ export default function LabelerPage() {
       );
     }
 
-    // No stored session — show the selector for a fresh load
+    // No stored session, so show the selector for a fresh load
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="max-w-md w-full mx-4">
@@ -309,8 +338,20 @@ export default function LabelerPage() {
       {/* Sidebar */}
       <aside className="w-64 bg-[#0B0B0D] border-r border-[#1e2028] flex flex-col">
         <div className="p-3 border-b border-[#1e2028]">
-          <div className="text-sm font-medium text-[#D3D5FD] truncate">
-            {dataset.info.repo_id}
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-sm font-medium text-[#D3D5FD] truncate">
+              {dataset.info.repo_id}
+            </div>
+            <button
+              onClick={() => setShowLoadModal(true)}
+              className="shrink-0 flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] text-[#D3D5FD]/60 hover:text-[#D3D5FD] hover:bg-[#161821] transition-colors border border-[#2a2d38]"
+            >
+              <svg className="w-3 h-3" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h5l2 2h5a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" />
+                <path d="M10 9v5M7.5 11.5h5" />
+              </svg>
+              Load
+            </button>
           </div>
           <div className="text-xs text-[#929AAB] mt-0.5">
             {dataset.episodes.length} episodes &middot;{" "}
@@ -318,27 +359,69 @@ export default function LabelerPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div ref={episodeListRef} className="flex-1 overflow-hidden">
           <EpisodeList
             episodes={dataset.episodes}
             selectedEpisode={dataset.selectedEpisode}
             onSelectEpisode={dataset.selectEpisode}
             onDeleteEpisode={dataset.deleteEpisode}
-            height={500}
+            height={episodeListHeight}
             fps={dataset.info.fps}
           />
         </div>
 
+        {/* Trash panel */}
+        {deletedCount > 0 && (
+          <div className="border-t border-[#1e2028]">
+            <button
+              onClick={() => setTrashOpen((v) => !v)}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#929AAB] hover:text-[#D3D5FD] hover:bg-[#161821] transition-colors"
+            >
+              <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 4h12M5.5 4V2.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V4M6.5 7v5M9.5 7v5M3.5 4l.5 9a1.5 1.5 0 0 0 1.5 1.5h5A1.5 1.5 0 0 0 12 13l.5-9" />
+              </svg>
+              <span>Trash ({deletedCount})</span>
+              <svg
+                className={`w-3 h-3 ml-auto transition-transform ${trashOpen ? "rotate-180" : ""}`}
+                viewBox="0 0 10 6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M1 1l4 4 4-4" />
+              </svg>
+            </button>
+            {trashOpen && (
+              <div className="max-h-40 overflow-y-auto">
+                {dataset.deletedEpisodes.map((idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between px-3 py-1.5 text-xs text-[#929AAB] hover:bg-[#161821] transition-colors"
+                  >
+                    <span className="font-mono">#{idx + 1}</span>
+                    <button
+                      onClick={() => dataset.restoreEpisode(idx)}
+                      className="flex items-center gap-1 text-[10px] text-[#474A56] hover:text-[#D3D5FD] transition-colors"
+                      title="Restore episode"
+                    >
+                      <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M2 8a6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6" />
+                        <path d="M2 4v4h4" />
+                      </svg>
+                      Restore
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Export section */}
         <div className="p-3 border-t border-[#1e2028]">
-          {dataset.deletedCount > 0 && (
-            <div className="text-xs text-[#A8ABE0]/80 mb-2">
-              {dataset.deletedCount} episode{dataset.deletedCount === 1 ? "" : "s"} pending deletion
-            </div>
-          )}
           <button
             onClick={handleExport}
-            disabled={dataset.deletedCount === 0 || dataset.exporting}
+            disabled={deletedCount === 0 || dataset.exporting}
             className="w-full flex items-center justify-center gap-2 bg-[#161821] hover:bg-[#1e2028] disabled:bg-[#0B0B0D] disabled:text-[#2a2d38] text-[#D3D5FD] hover:text-[#D3D5FD] px-3 py-2 rounded-lg text-xs font-medium transition-all border border-[#2a2d38] disabled:border-[#1e2028]"
           >
             {dataset.exporting ? (
@@ -401,7 +484,6 @@ export default function LabelerPage() {
                             ? handlePlaybackEnd
                             : undefined
                         }
-                        label={currentEp?.label || undefined}
                       />
                     ) : (
                       <div
@@ -464,7 +546,7 @@ export default function LabelerPage() {
             onSetLabel={(label) => {
               if (dataset.selectedEpisode !== null) {
                 setLabel(dataset.selectedEpisode, label);
-                if (autoAdvance) handleNextEpisode();
+                handleNextEpisode();
               }
             }}
             onRemoveLabel={() => {
@@ -480,8 +562,6 @@ export default function LabelerPage() {
             rewardPresets={rewardPresets}
             onRewardRuleChange={(rule, reapply) => updateRewardRule(rule, reapply)}
             rewardRuleSaving={rewardRuleSaving}
-            autoAdvance={autoAdvance}
-            onAutoAdvanceChange={setAutoAdvance}
           />
           <RewardStrip
             label={currentEp?.label || null}
@@ -508,6 +588,60 @@ export default function LabelerPage() {
           />
         </div>
       </main>
+
+      {/* Load new dataset modal */}
+      {showLoadModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowLoadModal(false);
+          }}
+        >
+          <div className="max-w-lg w-full mx-6">
+            <div className="bg-[#0B0B0D]/90 backdrop-blur-xl border border-[#2a2d38] rounded-2xl p-8 shadow-2xl shadow-black/40">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h2 className="text-sm font-medium text-[#D3D5FD] mb-1">
+                    Dataset Path
+                  </h2>
+                  <p className="text-xs text-[#929AAB]">
+                    Select a local directory containing a LeRobot v3.0 dataset
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowLoadModal(false)}
+                  className="shrink-0 p-1 rounded-md text-[#929AAB] hover:text-[#D3D5FD] hover:bg-[#161821] transition-colors"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                    <path d="M5 5l10 10M15 5L5 15" />
+                  </svg>
+                </button>
+              </div>
+              <DatasetSelector
+                onLoad={(path, saveTo) => {
+                  dataset.loadDataset(path, saveTo);
+                }}
+                loading={dataset.loading}
+                error={dataset.error}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export confirmation modal */}
+      {showExportConfirm && (
+        <ConfirmModal
+          title={`Apply ${deletedCount} pending deletion${deletedCount === 1 ? "" : "s"}?`}
+          message="This will re-encode video files and cannot be undone."
+          confirmLabel="Export"
+          onConfirm={() => {
+            setShowExportConfirm(false);
+            dataset.exportDataset();
+          }}
+          onCancel={() => setShowExportConfirm(false)}
+        />
+      )}
     </>
   );
 }

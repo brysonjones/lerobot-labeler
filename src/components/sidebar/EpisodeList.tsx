@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { FixedSizeList as List } from "react-window";
 import type { EpisodeSummary } from "@/lib/types";
 
@@ -53,6 +53,18 @@ export function EpisodeList({
   height,
   fps,
 }: EpisodeListProps) {
+  const listRef = useRef<List>(null);
+
+  // Scroll to keep the selected episode visible
+  const selectedIdx = episodes.findIndex(
+    (ep) => ep.episode_index === selectedEpisode
+  );
+  useEffect(() => {
+    if (selectedIdx >= 0 && listRef.current) {
+      listRef.current.scrollToItem(selectedIdx, "smart");
+    }
+  }, [selectedIdx]);
+
   const Row = useCallback(
     ({ index, style }: { index: number; style: React.CSSProperties }) => {
       const ep = episodes[index];
@@ -76,10 +88,12 @@ export function EpisodeList({
                   e.stopPropagation();
                   onDeleteEpisode(ep.episode_index);
                 }}
-                className="opacity-0 group-hover:opacity-100 text-[#474A56] hover:text-[#E87070] text-xs px-0.5 transition-opacity"
+                className="opacity-30 group-hover:opacity-100 text-[#474A56] hover:text-[#E87070] transition-opacity"
                 title="Remove episode (can be restored)"
               >
-                ✕
+                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 4h12M5.5 4V2.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V4M6.5 7v5M9.5 7v5M3.5 4l.5 9a1.5 1.5 0 0 0 1.5 1.5h5A1.5 1.5 0 0 0 12 13l.5-9" />
+                </svg>
               </span>
             )}
           </button>
@@ -91,6 +105,7 @@ export function EpisodeList({
 
   return (
     <List
+      ref={listRef}
       height={height}
       itemCount={episodes.length}
       itemSize={36}

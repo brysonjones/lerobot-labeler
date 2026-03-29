@@ -53,6 +53,8 @@ export interface RewardRule {
   step_reward: number;
   success_terminal_reward: number;
   failure_terminal_reward: number;
+  reward_column_name: string;
+  is_done_column_name: string;
 }
 
 /** Per-camera timing offsets within the video file. */

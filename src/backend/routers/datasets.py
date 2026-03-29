@@ -89,7 +89,7 @@ async def get_session(request: Request):
 async def export_dataset(request: Request):
     """Apply all pending deletions using lerobot's delete_episodes.
 
-    This is the slow operation — re-encodes video chunks. Only called once
+    This is the slow operation that re-encodes video chunks. Only called once
     when the user is done labeling.
     """
     session = _get_session_service(request)

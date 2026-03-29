@@ -6,6 +6,7 @@ node_modules/
 out/
 
 # Electron
+dist/
 dist-electron/
 
 # TypeScript
