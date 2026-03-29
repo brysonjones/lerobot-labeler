@@ -4,6 +4,8 @@ A desktop tool for labeling [LeRobot](https://github.com/huggingface/lerobot) v3
 
 Load a dataset, review episodes across multiple camera angles with synchronized signal plots, and label each episode. Rewards are written directly to parquet so the dataset is immediately ready for training.
 
+**Note:** This project is not officially associated with the LeRobot project and is a separate effort.
+
 ## Features
 
 - **Multi-camera video playback**
@@ -120,4 +122,15 @@ The test suite includes format sentinel tests that verify our assumptions about 
 
 ```bash
 uv run pytest tests/ -v
+```
+
+## References
+
+```bibtex
+@misc{cadene2024lerobot,
+    author = {Cadene, Remi and Alibert, Simon and Soare, Alexander and Gallouedec, Quentin and Zouitine, Adil and Palma, Steven and Kooijmans, Pepijn and Aractingi, Michel and Shukor, Mustafa and Aubakirova, Dana and Russi, Martino and Capuano, Francesco and Pascal, Caroline and Choghari, Jade and Moss, Jess and Wolf, Thomas},
+    title = {LeRobot: State-of-the-art Machine Learning for Real-World Robotics in Pytorch},
+    howpublished = "\url{https://github.com/huggingface/lerobot}",
+    year = {2024}
+}
 ```
